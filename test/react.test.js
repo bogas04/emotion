@@ -213,7 +213,7 @@ describe('styled', () => {
 
     const Thing = styled.div`
       display: flex;
-      .${H1} {
+      ${H1} {
         color: green;
       }
     `
@@ -222,6 +222,27 @@ describe('styled', () => {
       .create(
         <Thing>
           hello <H1>This will be green</H1> world
+        </Thing>
+      )
+      .toJSON()
+
+    expect(tree).toMatchSnapshot()
+  })
+
+  test('component as selector function interpolation', () => {
+    const H1 = styled.h1`font-size: ${props => props.fontSize};`
+
+    const Thing = styled.div`
+      display: flex;
+      ${H1} {
+        color: green;
+      }
+    `
+
+    const tree = renderer
+      .create(
+        <Thing fontSize={10}>
+          hello <H1 fontSize={20}>This will be green</H1> world
         </Thing>
       )
       .toJSON()
@@ -424,6 +445,33 @@ describe('styled', () => {
       display: props.display
     }))
     const tree = renderer.create(<H1 display='flex'>hello world</H1>).toJSON()
+
+    expect(tree).toMatchSnapshot()
+  })
+
+  test('objects with spread properties', () => {
+    const defaultText = { fontSize: 20 }
+    const Figure = styled.figure({
+      ...defaultText
+    })
+    const tree = renderer.create(<Figure>hello world</Figure>).toJSON()
+
+    expect(tree).toMatchSnapshot()
+  })
+
+  test('composing components', () => {
+    const Button = styled.button`
+       color: green;
+    `
+    const OtherButton = styled(Button)`
+      display: none;
+    `
+
+    const AnotherButton = styled(OtherButton)`
+      display: flex;
+      justify-content: center;
+    `
+    const tree = renderer.create(<AnotherButton>hello world</AnotherButton>).toJSON()
 
     expect(tree).toMatchSnapshot()
   })
